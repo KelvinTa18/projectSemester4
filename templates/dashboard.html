@@ -1,0 +1,189 @@
+{% extends "layout-blank.html" %}
+{% block title %}
+Dashboard
+{% endblock %}
+{% block content %}
+
+<h1>Dashboard</h1>
+
+<!-- Display totals for teachers, students, and classes -->
+<div class="row text-center">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="icon-container">
+                        <i class="fas fa-chalkboard-teacher fa-3x text-success"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h5 class="card-title">Teachers</h5>
+                        <h2>{{ total_teachers }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="icon-container">
+                        <i class="fas fa-user-graduate fa-3x text-primary"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h5 class="card-title">Students</h5>
+                        <h2>{{ total_students }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="icon-container">
+                        <i class="fas fa-school fa-3x text-warning"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h5 class="card-title">Classes</h5>
+                        <h2>{{ total_class }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Display combined male and female population of teachers and students and attendance status side by side -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <canvas id="populationChart" width="200" height="200"></canvas>
+    </div>
+    <div class="col-md-6">
+        <canvas id="attendanceChart" width="200" height="200"></canvas>
+    </div>
+</div>
+
+<!-- Satisfaction rates section -->
+<div class="card mt-4">
+    <div class="card-body">
+        <h5 class="card-title">Satisfaction Rates</h5>
+        <div class="progress-section">
+            <div class="progress-item">
+                <span>Kurang Puas</span>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" style="width: {{ kurang_puas }}%;" aria-valuenow="{{ kurang_puas }}" aria-valuemin="0" aria-valuemax="100">{{ kurang_puas }}%</div>
+                </div>
+            </div>
+            <div class="progress-item">
+                <span>Lumayan Puas</span>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" style="width: {{ lumayan_puas }}%;" aria-valuenow="{{ lumayan_puas }}" aria-valuemin="0" aria-valuemax="100">{{ lumayan_puas }}%</div>
+                </div>
+            </div>
+            <div class="progress-item">
+                <span>Sangat Puas</span>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" style="width: {{ sangat_puas }}%;" aria-valuenow="{{ sangat_puas }}" aria-valuemin="0" aria-valuemax="100">{{ sangat_puas }}%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://kit.fontawesome.com/a076d05399.js"></script>
+<script>
+    // Chart for combined teacher and student population
+    var ctxPopulation = document.getElementById('populationChart').getContext('2d');
+    var populationChart = new Chart(ctxPopulation, {
+        type: 'bar',
+        data: {
+            labels: ['Teachers Male', 'Teachers Female', 'Students Male', 'Students Female'],
+            datasets: [{
+                label: 'Population',
+                backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(54, 162, 235, 0.5)', 'rgba(255, 99, 132, 0.5)', 'rgba(54, 162, 235, 0.5)'],
+                borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                borderWidth: 1,
+                data: [
+                    {{ teacher_male_count }},
+                    {{ teacher_female_count }},
+                    {{ student_male_count }},
+                    {{ student_female_count }}
+                ]
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Chart for attendance status
+    var ctxAttendance = document.getElementById('attendanceChart').getContext('2d');
+    var attendanceChart = new Chart(ctxAttendance, {
+        type: 'bar',
+        data: {
+            labels: ['Present', 'Absent'],
+            datasets: [{
+                label: 'Attendance',
+                backgroundColor: ['rgba(75, 192, 192, 0.5)', 'rgba(255, 159, 64, 0.5)'],
+                borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 159, 64, 1)'],
+                borderWidth: 1,
+                data: [
+                    {{ attendace_present_count }},
+                    {{ attendace_absent_count }}
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            }
+        }
+    });
+</script>
+
+<!-- Inline CSS -->
+<style>
+    .progress-section {
+        margin-top: 20px;
+    }
+
+    .progress-item {
+        margin-bottom: 10px;
+    }
+
+    .progress {
+        height: 20px; /* Adjust the height as needed */
+        background-color: #e9ecef;
+    }
+
+    .progress-bar {
+        font-size: 14px;
+        line-height: 20px; /* Adjust line height to vertically center the text */
+        color: white; /* Text color */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card .icon-container {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: #f1f1f1;
+    }
+</style>
+
+{% endblock %}
